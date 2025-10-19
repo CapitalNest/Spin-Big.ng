@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spin | Spin$Big</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00c6ff;
+      --secondary: #0072ff;
+      --bg-dark: #0f172a;
+      --accent: #10b981;
+      --danger: #ef4444;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark), #1e3a8a);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 20px;
+    }
+
+    /* Top bar */
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      z-index: 10;
+    }
+    .balance-display { font-size: 18px; font-weight: 600; }
+    .home-btn {
+      background: linear-gradient(90deg, var(--accent), #059669);
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    .home-btn:hover { background: linear-gradient(90deg, #059669, var(--accent)); }
+
+    /* Players count */
+    .players-count {
+      margin-top: 80px;
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    /* Wheel Container */
+    .wheel-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 40px 0;
+    }
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 8px solid rgba(255,255,255,0.1);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      background: conic-gradient(
+        #ef4444 0deg 72deg,
+        #f59e0b 72deg 144deg,
+        #10b981 144deg 216deg,
+        #3b82f6 216deg 288deg,
+        #6b7280 288deg 360deg
+      );
+      transition: transform 5s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+    }
+    .pointer {
+      position: absolute;
+      top: -15px; left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 25px solid var(--danger);
+    }
+
+    /* Segment Labels */
+    .wheel-labels {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex; justify-content: center; align-items: center;
+      pointer-events: none;
+    }
+    .wheel-labels span {
+      position: absolute;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .wheel-labels span:nth-child(1) { transform: rotate(36deg) translate(115px) rotate(-36deg); }
+    .wheel-labels span:nth-child(2) { transform: rotate(108deg) translate(115px) rotate(-108deg); }
+    .wheel-labels span:nth-child(3) { transform: rotate(180deg) translate(115px) rotate(-180deg); }
+    .wheel-labels span:nth-child(4) { transform: rotate(252deg) translate(115px) rotate(-252deg); }
+    .wheel-labels span:nth-child(5) { transform: rotate(324deg) translate(115px) rotate(-324deg); }
+
+    /* Spin Button */
+    .spin-btn {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      padding: 15px 35px;
+      font-size: 20px;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0, 198, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+    .spin-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 198, 255, 0.5);
+    }
+
+    /* Alert Box */
+    .alert-box {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      padding: 25px 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      text-align: center;
+      opacity: 0;
+      transition: 0.4s ease;
+      z-index: 100;
+    }
+    .alert-box.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .alert-box h2 {
+      margin-bottom: 10px;
+      font-size: 22px;
+      color: var(--danger);
+    }
+    .alert-box p {
+      font-size: 15px;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div class="balance-display">₦<span id="balance">0</span></div>
+    <button class="home-btn" onclick="window.location.href='dashboard.html'">🏠 Home</button>
+  </div>
+
+  <div class="players-count">🔥 Current players: <span id="players">0</span></div>
+
+  <div class="wheel-container">
+    <div class="wheel" id="wheel"></div>
+    <div class="pointer"></div>
+    <div class="wheel-labels">
+      <span>₦5M</span>
+      <span>₦15M</span>
+      <span>₦25M</span>
+      <span>₦50M</span>
+      <span>₦0.00M 💥</span>
+    </div>
+  </div>
+
+  <button class="spin-btn" onclick="startSpin()">SPIN ₦1,000,000</button>
+
+  <div class="alert-box" id="alertBox">
+    <h2>💥 Liquidated!</h2>
+    <p>Sorry, you lost this round.</p>
+  </div>
+
+  <script>
+    const wheel = document.getElementById('wheel');
+    const alertBox = document.getElementById('alertBox');
+    const balanceDisplay = document.getElementById('balance');
+    const playersDisplay = document.getElementById('players');
+    let currentPlayerCount = 0;
+
+    // Load balance from localStorage
+    function loadBalance() {
+      const bal = parseInt(localStorage.getItem('userBalance') || '0');
+      balanceDisplay.textContent = bal.toLocaleString();
+    }
+    loadBalance();
+
+    // Update players count every 3s without repeating
+    let lastNumber = null;
+    function updatePlayers() {
+      let random;
+      do {
+        random = Math.floor(Math.random() * (11400 - 1000 + 1)) + 1000;
+      } while (random === lastNumber);
+      lastNumber = random;
+      playersDisplay.textContent = random.toLocaleString();
+    }
+    updatePlayers();
+    setInterval(updatePlayers, 3000);
+
+    function startSpin() {
+      let bal = parseInt(localStorage.getItem('userBalance') || '0');
+      if (bal < 1000000) {
+        showAlert('Insufficient Balance', 'You need at least ₦1,000,000 to spin.');
+        return;
+      }
+
+      // Deduct 1M
+      bal -= 1000000;
+      localStorage.setItem('userBalance', bal);
+      loadBalance();
+
+      // Spin wheel
+      const stopAngle = 3000 + 324; // always stop at 0.00M
+      wheel.style.transform = `rotate(${stopAngle}deg)`;
+
+      setTimeout(() => {
+        showAlert('💥 Liquidated!', 'Sorry, you lost this round.');
+        saveToHistory('₦0.00M 💥');
+      }, 5200);
+    }
+
+    function showAlert(title, message) {
+      alertBox.querySelector('h2').textContent = title;
+      alertBox.querySelector('p').textContent = message;
+      alertBox.classList.add('show');
+      setTimeout(() => alertBox.classList.remove('show'), 3500);
+    }
+
+    function saveToHistory(result) {
+      const history = JSON.parse(localStorage.getItem('spinHistory') || '[]');
+      const now = new Date().toLocaleString();
+      history.push({ result, time: now });
+      localStorage.setItem('spinHistory', JSON.stringify(history));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Referral | Spin$Big</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00c6ff;
+      --secondary: #0072ff;
+      --bg-dark: #0f172a;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --green: #22c55e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark), #1e3a8a);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 90px;
+      text-align: center;
+    }
+
+    /* Top bar */
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 15px 20px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      z-index: 10;
+    }
+    .home-btn {
+      background: linear-gradient(90deg, var(--accent), #059669);
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    .home-btn:hover { background: linear-gradient(90deg, #059669, var(--accent)); }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 15px;
+      opacity: 0.85;
+      max-width: 350px;
+      margin: 0 auto 20px;
+    }
+
+    /* Referral Link */
+    .referral-link-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .referral-link {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--green);
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .referral-link svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--green);
+    }
+    .copy-btn {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0, 198, 255, 0.4);
+    }
+
+    /* Referral code */
+    .code-display {
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    /* Alert */
+    .alert-box {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      padding: 25px 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      text-align: center;
+      opacity: 0;
+      transition: 0.4s ease;
+      z-index: 100;
+    }
+    .alert-box.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .alert-box h2 {
+      margin-bottom: 10px;
+      font-size: 20px;
+      color: var(--accent);
+    }
+    .alert-box p {
+      font-size: 15px;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <button class="home-btn" onclick="window.location.href='dashboard.html'">🏠 Home</button>
+  </div>
+
+  <h1>Invite & Earn</h1>
+  <p>Earn <strong>₦10,000</strong> for every friend who signs up and deposits with your referral link. Share and start earning instantly.</p>
+
+  <div class="referral-link-wrapper">
+    <a id="referralLink" class="referral-link" href="#" target="_blank">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3.9,12a5,5,0,0,1,5-5H13a1,1,0,0,1,0,2H8.9a3,3,0,0,0,0,6H13a1,1,0,0,1,0,2H8.9A5,5,0,0,1,3.9,12Zm7-1h2.2a1,1,0,0,1,0,2H10.9a1,1,0,0,1,0-2Zm4.2-4H15a5,5,0,0,1,0,10h-.9a1,1,0,0,1,0-2H15a3,3,0,0,0,0-6h-.9a1,1,0,0,1,0-2Z"/></svg>
+      <span></span>
+    </a>
+    <button class="copy-btn" onclick="copyReferral()">Copy</button>
+  </div>
+
+  <div class="code-display">
+    Your Referral Code: <span id="referralCode"></span>
+  </div>
+
+  <div class="alert-box" id="alertBox">
+    <h2>✅ Copied!</h2>
+    <p>Referral link copied to clipboard.</p>
+  </div>
+
+  <script>
+    const referralCodeEl = document.getElementById('referralCode');
+    const referralLinkEl = document.querySelector('#referralLink span');
+    const referralLinkAnchor = document.getElementById('referralLink');
+    const alertBox = document.getElementById('alertBox');
+
+    // Generate or load referral code
+    function getReferralCode() {
+      let code = localStorage.getItem('userReferralCode');
+      if (!code) {
+        code = generateRandomCode(9);
+        localStorage.setItem('userReferralCode', code);
+      }
+      return code;
+    }
+
+    function generateRandomCode(length) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    const referralCode = getReferralCode();
+    referralCodeEl.textContent = referralCode;
+    const fullLink = `https://capitalnest.github.io/Spin$Big.ng`;
+    referralLinkEl.textContent = fullLink;
+    referralLinkAnchor.href = fullLink;
+
+    // Copy function
+    function copyReferral() {
+      navigator.clipboard.writeText(fullLink).then(() => {
+        alertBox.classList.add('show');
+        setTimeout(() => alertBox.classList.remove('show'), 3000);
+      });
+    }
+  </script>
+</body>
+</html>

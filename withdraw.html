@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Withdraw | Spin$Big</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+  body{
+    background: linear-gradient(135deg,#000,#1a1a1a);
+    color:#fff;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  header{
+    text-align:center;
+    padding:20px;
+    font-size:24px;
+    font-weight:700;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,255,255,0.1);
+  }
+  .container{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+  }
+  .card{
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(15px);
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 4px 30px rgba(0,0,0,0.5);
+    width:100%;
+    max-width:400px;
+  }
+  .card h2{
+    text-align:center;
+    margin-bottom:25px;
+    font-size:22px;
+    font-weight:700;
+    color:#fff;
+  }
+  .input-group{
+    position:relative;
+    margin-bottom:15px;
+  }
+  .input-group input{
+    width:100%;
+    padding:14px 45px 14px 45px;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:12px;
+    color:#fff;
+    font-size:15px;
+    outline:none;
+  }
+  .input-group input::placeholder{
+    color:#aaa;
+  }
+  .input-group i{
+    position:absolute;
+    left:15px;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:18px;
+  }
+  button{
+    width:100%;
+    background:#e50914;
+    color:#fff;
+    border:none;
+    padding:14px;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s;
+  }
+  button:hover{
+    background:#ff1a23;
+    transform:scale(1.02);
+  }
+  .alert{
+    display:none;
+    margin-top:15px;
+    padding:15px;
+    border-radius:12px;
+    background:rgba(255,0,0,0.1);
+    border:1px solid rgba(255,0,0,0.3);
+    color:#ff4d4d;
+    font-weight:600;
+    text-align:center;
+    animation:fadeIn 0.3s;
+  }
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  footer{
+    display:flex;
+    justify-content:space-around;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(10px);
+    padding:12px 0;
+    border-top:1px solid rgba(255,255,255,0.1);
+    position:sticky;
+    bottom:0;
+  }
+  footer a{
+    color:#fff;
+    text-decoration:none;
+    font-size:14px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    transition:0.3s;
+  }
+  footer a:hover{
+    color:#e50914;
+  }
+  footer i{
+    font-size:18px;
+    margin-bottom:4px;
+  }
+</style>
+</head>
+<body>
+  <header>💸 Withdraw | Spin$Big</header>
+
+  <div class="container">
+    <div class="card">
+      <h2>Withdraw Funds</h2>
+      <div class="input-group">
+        <i>🏦</i>
+        <input type="text" id="bank" placeholder="Bank Name" required>
+      </div>
+      <div class="input-group">
+        <i>🔢</i>
+        <input type="text" id="accNum" placeholder="Account Number" required>
+      </div>
+      <div class="input-group">
+        <i>👤</i>
+        <input type="text" id="accName" placeholder="Account Holder Name" required>
+      </div>
+      <div class="input-group">
+        <i>💵</i>
+        <input type="number" id="amount" placeholder="Amount (₦)" required>
+      </div>
+      <button onclick="withdraw()">Withdraw</button>
+      <div class="alert" id="alert">🚫 Insufficient Balance</div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="dashboard.html"><i>🏠</i>Home</a>
+    <a href="Spin$Big.html"><i>🔥</i>Spin$Big</a>
+    <a href="contact.html"><i>💬</i>Customer Service</a>
+    <a href="history.html"><i>📜</i>History</a>
+  </footer>
+
+<script>
+  const user = JSON.parse(localStorage.getItem('user'));
+  if(!user){ window.location.href='login.html'; }
+
+  function withdraw(){
+    const amt = Number(document.getElementById('amount').value);
+    const alertBox = document.getElementById('alert');
+
+    if(amt < 1000000){
+      alertBox.textContent = '🚫 Minimum withdrawal is ₦1,000,000';
+      alertBox.style.display='block';
+      setTimeout(()=> alertBox.style.display='none', 4000);
+      return;
+    }
+
+    if(amt > user.balance || user.balance < 1000000){
+      alertBox.textContent = '🚫 Insufficient Balance';
+      alertBox.style.display='block';
+      setTimeout(()=> alertBox.style.display='none', 4000);
+      return;
+    }
+
+    // ✅ If everything is okay — normally you'd process the request here
+    alert('Error 524511');
+  }
+</script>
+</body>
+</html>

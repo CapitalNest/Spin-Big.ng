@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Payment Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .payment-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      padding: 25px;
+      border-radius: 16px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.6s ease;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .amount-box {
+      background: rgba(255,255,255,0.15);
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 20px;
+      margin: 15px 0;
+      font-weight: 500;
+    }
+
+    .timer {
+      font-size: 18px;
+      margin: 10px 0 20px;
+      font-weight: 500;
+      color: #facc15;
+    }
+
+    p {
+      margin: 8px 0;
+      font-size: 15px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      font-size: 17px;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: linear-gradient(90deg, #10b981, #059669);
+      color: white;
+      transition: transform 0.2s ease, background 0.3s;
+      margin-top: 15px;
+    }
+
+    .btn:hover {
+      background: linear-gradient(90deg, #059669, #10b981);
+      transform: translateY(-2px);
+    }
+
+    .loading {
+      display: none;
+      font-size: 16px;
+      margin-top: 15px;
+      color: #fcd34d;
+      animation: pulse 1.5s infinite;
+    }
+
+    .success {
+      color: #22c55e;
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .fail {
+      color: #f87171;
+      font-size: 17px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      font-size: 14px;
+    }
+
+    footer div {
+      text-align: center;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    footer div:hover {
+      color: #10b981;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media(max-width: 480px) {
+      .payment-card { padding: 20px; }
+      h1 { font-size: 20px; }
+      .amount-box { font-size: 18px; }
+      .btn { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="payment-card">
+    <h1>Complete Your Payment</h1>
+
+    <div class="amount-box">
+      Amount to Pay: <span id="payAmount"></span> ₦
+    </div>
+
+    <div class="timer" id="countdown"></div>
+
+    <p><strong>Account Name:</strong> MFY / NAIRAPLUG-MUB</p>
+    <p><strong>Account Number:</strong> 527-7741-129</p>
+    <p><strong>Bank Name:</strong> Sterling Bank</p>
+
+    <button class="btn" id="paymentBtn">I Have Made Payment</button>
+    <div class="loading" id="loadingText">⏳ Checking payment status... Please wait 50s</div>
+    <div class="fail" id="failMsg"></div>
+    <div class="success" id="successMsg"></div>
+  </div>
+
+  <footer>
+    <div onclick="window.location.href='dashboard.html'">🏠 Home</div>
+    <div onclick="window.location.href='Spin$Big.html'">🔥 Spin$Big</div>
+    <div onclick="window.location.href='contact.html'">💬 Customer Service</div>
+    <div onclick="window.location.href='history.html'">📜 History</div>
+  </footer>
+
+  <script>
+    const paymentBtn = document.getElementById('paymentBtn');
+    const loadingText = document.getElementById('loadingText');
+    const failMsg = document.getElementById('failMsg');
+    const successMsg = document.getElementById('successMsg');
+    const payAmountDisplay = document.getElementById('payAmount');
+
+    let clickCount = parseInt(localStorage.getItem('clickCount') || '0');
+    const depositAmount = parseInt(localStorage.getItem('depositAmount') || '0');
+    payAmountDisplay.textContent = depositAmount.toLocaleString();
+
+    // Countdown logic
+    let countdownTime = localStorage.getItem('countdownEnd');
+    const countdownEl = document.getElementById('countdown');
+
+    function updateCountdown() {
+      const now = Date.now();
+      const distance = countdownTime - now;
+      if (distance <= 0) {
+        countdownEl.textContent = "⏳ Time expired!";
+        clearInterval(timerInterval);
+        paymentBtn.disabled = true;
+        paymentBtn.style.opacity = '0.5';
+        return;
+      }
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      countdownEl.textContent = `⏳ Time Remaining: ${minutes}m ${seconds}s`;
+    }
+
+    const timerInterval = setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Payment click
+    paymentBtn.addEventListener('click', () => {
+      clickCount++;
+      localStorage.setItem('clickCount', clickCount.toString());
+
+      paymentBtn.style.display = 'none';
+      failMsg.textContent = '';
+      successMsg.textContent = '';
+      loadingText.style.display = 'block';
+
+      setTimeout(() => {
+        loadingText.style.display = 'none';
+
+        if (clickCount < 3) {
+          failMsg.textContent = "❌ Payment not confirmed. Please try again.";
+          paymentBtn.style.display = 'inline-block';
+        } else {
+          successMsg.textContent = "✅ Payment Successful! Your deposit has been added.";
+          let balance = parseInt(localStorage.getItem('userBalance') || '0');
+          balance += depositAmount;
+          localStorage.setItem('userBalance', balance.toString());
+          localStorage.removeItem('clickCount');
+          paymentBtn.style.display = 'none';
+        }
+      }, 3000); // 50 seconds loading
+    });
+  </script>
+
+</body>
+</html>
